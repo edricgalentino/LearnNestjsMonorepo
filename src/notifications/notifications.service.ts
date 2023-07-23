@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from 'src/users/entity/users.entity';
 import { Repository } from 'typeorm';
@@ -29,12 +29,47 @@ export class NotificationsService {
       .getMany();
   }
 
-  async create(notification: Notifications): Promise<Notifications> {
-    return await this.notificationsRepository.create(notification);
+  async create(
+    username: Users['username'],
+    message: string,
+    type: 'info' | 'success' | 'error',
+  ): Promise<Notifications> {
+    return await this.notificationsRepository.create({
+      message,
+      created_at: new Date(),
+      created_by: username,
+      is_read: false,
+      type,
+      updated_at: new Date(),
+    });
   }
 
-  async setIsReadToTrue(id: Notifications['id']): Promise<Notifications> {
+  async setIsReadToTrue(
+    user: Users,
+    id: Notifications['id'],
+  ): Promise<Notifications> {
     const notification = await this.findOneById(id);
+    const errorMessage = `There are something error when you read notification with id ${id}`;
+    if (!notification) {
+      // create notification
+      const newNotification = await this.create(
+        user.username,
+        errorMessage,
+        'error',
+      );
+
+      throw new BadRequestException('Notification does not exist');
+    }
+
+    if (notification.created_by !== user.username) {
+      // create notification
+      const newNotification = await this.create(
+        user.username,
+        errorMessage,
+        'error',
+      );
+      throw new BadRequestException('You cannot read this notification');
+    }
 
     return await this.notificationsRepository.save({
       ...notification,
@@ -42,8 +77,29 @@ export class NotificationsService {
     });
   }
 
-  async delete(id: Notifications['id']): Promise<Notifications> {
+  async delete(user: Users, id: Notifications['id']): Promise<Notifications> {
     const notification = await this.findOneById(id);
+    const errorMessage = `There are something error when you read notification with id ${id}`;
+    if (!notification) {
+      // create notification
+      const newNotification = await this.create(
+        user.username,
+        errorMessage,
+        'error',
+      );
+
+      throw new BadRequestException('Notification does not exist');
+    }
+
+    if (notification.created_by !== user.username) {
+      // create notification
+      const newNotification = await this.create(
+        user.username,
+        errorMessage,
+        'error',
+      );
+      throw new BadRequestException('You cannot read this notification');
+    }
 
     return await this.notificationsRepository.remove(notification);
   }

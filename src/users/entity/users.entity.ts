@@ -17,7 +17,7 @@ export class Users {
   @Column({ type: 'varchar', length: 255, nullable: false, unique: true })
   username: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
+  @Column({ type: 'varchar', length: 255, nullable: true })
   password: string;
 
   @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
@@ -38,11 +38,15 @@ export class Users {
   @UpdateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  created_by: string;
-
   @Column({ default: false })
   is_admin: boolean;
+
+  // create json object based on this class
+  // {
+  //   "username": "edric",
+  //   "password": "12345678",
+  //   "is_admin": true
+  // }
 
   // relations
   @OneToMany(() => Products, (products: Products) => products.created_by)

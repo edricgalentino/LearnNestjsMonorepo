@@ -6,8 +6,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
-  ManyToOne,
-  ManyToMany,
+  OneToMany,
 } from 'typeorm';
 
 @Entity({ name: 'products' })
@@ -24,10 +23,10 @@ export class Products {
   @Column({ type: 'varchar', length: 255, nullable: true })
   description: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: false })
-  image: string[];
+  // @Column({ type: 'varchar', length: 255, nullable: false })
+  // image: string[];
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: false })
   price: number;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
@@ -40,7 +39,7 @@ export class Products {
   @Column({ type: 'varchar', length: 255, nullable: true })
   height: number;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: 'varchar', length: 255, nullable: false })
   weight: number;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
@@ -56,10 +55,10 @@ export class Products {
   created_by: string;
 
   // relations
-  @ManyToOne(() => Users, (users: Users) => users.created_by)
+  @OneToMany(() => Users, (users: Users) => users.username)
   users: Users[];
 
-  @ManyToMany(
+  @OneToMany(
     () => Notifications,
     (notifications: Notifications) => notifications.created_by,
   )

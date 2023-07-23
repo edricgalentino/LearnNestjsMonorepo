@@ -5,21 +5,19 @@ import {
   Column,
   PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  ManyToMany,
+  UpdateDateColumn,OneToOne
 } from 'typeorm';
 
 @Entity({ name: 'notifications' })
 export class Notifications {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   message: string;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
-  type: string;
+  type: 'info' | 'success' | 'error';
 
   @Column({ default: false, nullable: false })
   is_read: boolean;
@@ -34,9 +32,9 @@ export class Notifications {
   created_by: string;
 
   // relations
-  @ManyToOne(() => Users, (users: Users) => users.created_by)
+  @OneToOne(() => Users, (users: Users) => users.username)
   users: Users[];
 
-  @ManyToMany(() => Products, (products: Products) => products.created_by)
+  @OneToOne(() => Products, (products: Products) => products.created_by)
   products: Products[];
 }
